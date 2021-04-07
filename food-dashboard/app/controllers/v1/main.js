@@ -30,7 +30,6 @@ function themMon () {
         hinhAnh = e.target.result;
         const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,moTa) 
         hienThiMonAn(food);
-
     }
 }
 

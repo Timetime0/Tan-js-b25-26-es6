@@ -7,6 +7,7 @@ const validation = new Validation ()
 
 document.getElementById('btnThem').addEventListener("click", function(){
     document.getElementById("btnThemMon").removeAttribute("disabled")
+    document.getElementById("btnCapNhat").setAttribute("disabled",true)
 })
 
 document.getElementById("btnClose").addEventListener("click", function(){
@@ -47,6 +48,7 @@ document.getElementById("closex").addEventListener("click", function(){
         // biến hình ảnh thành chuỗi base64 (chuỗi string mã hóa từ file): lưu trữ được dạng file nhị phân => để hiển thị lên giao diện
         let hinhAnh = document.getElementById('hinhMon').files[0];
         const moTa = document.getElementById('moTa').value;
+        const nameHinh = document.getElementById('nameHinhAnh').innerHTML;
 
         //Validation
         let requiredMaMon = validation.kiemTraRong(maMon.trim(),"maMon")
@@ -81,9 +83,8 @@ document.getElementById("closex").addEventListener("click", function(){
             document.getElementById("invalidID").style.display="block"
             kiemTra = false
         }
-        if(kiemTra === false){
-            return false
-        }
+        if(kiemTra === false) return false
+        
 
         // Chuyển đối tượng file thành string dạng base64: là tác vụ bất đồng bộ
         // Kỹ thuật sử lý file trong js
@@ -91,13 +92,22 @@ document.getElementById("closex").addEventListener("click", function(){
             fileReader.readAsDataURL(hinhAnh)
             fileReader.onload = function (e){
                 hinhAnh = e.target.result;
-                const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,moTa) 
+                const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,nameHinh,moTa) 
                 const dsMonAn = danhSachMonAn.ds
                 dsMonAn.push(food);
                 hienThiMonAn(dsMonAn)
                 resetMonAn()
             }
     }
+
+document.getElementById("btnClickHinhAnh").addEventListener("click", clickBtnHinhAnh)
+function clickBtnHinhAnh(){
+    document.getElementById("hinhMon").addEventListener("change",(e)=>{
+        let hinhAnh = document.getElementById('hinhMon').files[0];
+        document.getElementById("nameHinhAnh").innerHTML = hinhAnh.name
+    })
+}
+    
 
 
 // Hiện thị danh sách món ăn
@@ -140,6 +150,7 @@ function langNgheSuKien(e){
 
     if(action==="fix"){
         document.getElementById("btnThemMon").setAttribute("disabled",true)
+        document.getElementById("btnCapNhat").removeAttribute("disabled")
         chinhSuaMonAn(id)
     }
 }
@@ -154,12 +165,13 @@ function resetMonAn(){
     document.getElementById('tinhTrang').value = "";
     document.getElementById('moTa').value = "";
     document.getElementById('hinhMon').value = "";
-    document.getElementById('foodID').removeAttribute("disabled")
+    document.getElementById('foodID').removeAttribute("disabled");
+    document.getElementById('nameHinhAnh').innerHTML = "";
+
 }
 
 //Chỉnh sửa món ăn
- 
-function chinhSuaMonAn (id){
+ function chinhSuaMonAn (id){
     let danhSach = danhSachMonAn.ds
     let index = danhSach.findIndex(monAn=>monAn.id===id)
     if(index !== -1){
@@ -170,6 +182,8 @@ function chinhSuaMonAn (id){
         document.getElementById('khuyenMai').value = danhSach[index].khuyenMai;
         document.getElementById('tinhTrang').value = danhSach[index].tinhTrang;
         document.getElementById('moTa').value = danhSach[index].moTa;
+        document.getElementById('nameHinhAnh').innerHTML = danhSach[index].nameHinh;
+        document.getElementById('hinhMon').src = danhSach[index].hinhAnh;
         document.getElementById('foodID').setAttribute("disabled", true)
     
         // từ đó lôi nút btn Cập nhật ra 
@@ -179,14 +193,16 @@ function chinhSuaMonAn (id){
             const maMon = document.getElementById('foodID').value;
             const tenMon = document.getElementById('tenMon').value;
             const loaiMon = document.getElementById('loai').value;
-            const giaMon = +document.getElementById('giaMon').value;
-            const khuyenMai = +document.getElementById('khuyenMai').value;
+            const giaMon = document.getElementById('giaMon').value;
+            const khuyenMai = document.getElementById('khuyenMai').value;
             const tinhTrang = document.getElementById('tinhTrang').value;
-    
+            const nameHinh = document.getElementById('nameHinhAnh').innerHTML;
+            const hinhAnh = document.getElementById('hinhMon').src;
+            const moTa = document.getElementById('moTa').value;
+
             // thêm property "multiple" vào input để chọn nhiều files
             // biến hình ảnh thành chuỗi base64 (chuỗi string mã hóa từ file): lưu trữ được dạng file nhị phân => để hiển thị lên giao diện
-            let hinhAnh = document.getElementById('hinhMon').files[0];
-            const moTa = document.getElementById('moTa').value;
+            let hinhAnh1 = document.getElementById('hinhMon').files[0];
     
             // validation 
             let requiredMaMon = validation.kiemTraRong(maMon.trim(),"maMon")
@@ -210,27 +226,33 @@ function chinhSuaMonAn (id){
             let requiredTinhTrang = validation.kiemTraSeclected(tinhTrang,"tinhTrang")
             validator(requiredTinhTrang,'invalidTT')
 
-            let requiredHinhAnh = validation.kiemTraSeclected(hinhAnh,"hinhAnh")
-            validator(requiredHinhAnh,'invalidHinhAnh')
+
 
             let kiemTra = validation.kiemTraValid()
 
-            if(kiemTra === false){
-                return false
-            }
+            if(kiemTra === false) return 
 
             // Chuyển đối tượng file thành string dạng base64: là tác vụ bất đồng bộ
             // Kỹ thuật sử lý file trong js
-            const fileReader = new FileReader();
+
+            if(hinhAnh1){
+                const fileReader = new FileReader();
                 // console.log(fileReader);
-                fileReader.readAsDataURL(hinhAnh)
+                fileReader.readAsDataURL(hinhAnh1)
                 fileReader.onload = function (e){
-                    hinhAnh = e.target.result;
-                    const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,moTa) 
+                    let hinhAnh = e.target.result;
+                    const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,nameHinh,moTa) 
                     const dsCapNhat = danhSachMonAn.capNhatMonAn(id,food)
                     hienThiMonAn(dsCapNhat)
-                    resetMonAn()
                 }
+            } else {
+                const food = new Food (maMon,tenMon,loaiMon,giaMon,khuyenMai,tinhTrang,hinhAnh,nameHinh,moTa) 
+                const dsCapNhat = danhSachMonAn.capNhatMonAn(id,food)
+                hienThiMonAn(dsCapNhat)
+            }
+            resetMonAn()
+            $('#exampleModal').modal('toggle'); 
+            // document.getElementById("close").click()
         }
     }
 }
@@ -251,5 +273,14 @@ function validator(name, id){
         document.getElementById(id).innerHTML = name
     }else{
         document.getElementById(id).style.display="none"
+    }
+}
+
+
+document.getElementById("exampleModal").addEventListener("click",claerall)
+function claerall (e){
+    const trick = e.target.getAttribute("class")
+    if(trick === "modal fade show"){
+        resetMonAn()
     }
 }
